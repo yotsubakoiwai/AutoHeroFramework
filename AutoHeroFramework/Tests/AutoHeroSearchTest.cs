@@ -20,7 +20,7 @@ namespace AutoHeroFramework
             chromeOptions.AddUserProfilePreference("intl.accept_languages", "en");
             chromeOptions.AddUserProfilePreference("disable-popup-blocking", "true");
             chromeOptions.AddArguments("disable-infobars");
-            //chromeOptions.AddArguments("--start-maximized");
+            chromeOptions.AddArguments("start-maximized");
             driver = new ChromeDriver(ReturnProjectExecutableFolder() + "/bin/Debug", chromeOptions);
         }
 
@@ -42,51 +42,61 @@ namespace AutoHeroFramework
 
             for (int i = 1; i < numOfPages; i++)
             {
+                //get all the years within the page and compare to 2015
+                var year = driver.FindElements(By.XPath("//ul[@data-qa-selector='spec-list']/li[1]"));
+                for (int k = 0; k < year.Count; k++)
+                {
+                    int rowYear = Convert.ToInt32(year[k].Text.Replace("•", "").Substring(4, 4));
+                    if (rowYear >= 2015)
+                    {
+                        Assert.GreaterOrEqual(rowYear, 2015, rowYear + " is greater than or equal to 2015");
+                        Console.WriteLine("TEST PASSED - " + rowYear + " is greater than or equal to 2015");
+                    }
+                }
+
                 //get all the prices within a page and compare the current row price to the next
                 IList<IWebElement> price = driver.FindElements(By.XPath("//div[@data-qa-selector='price']"));
-                for (int j = 0; j < price.Count - 1; j++)
+                for (int j = 0; j < price.Count; j++)
                 {
                     double currentRowPrice = Convert.ToDouble(price[j].Text.Replace("€", "").Trim());
-                    double nextRowPrice = Convert.ToDouble(price[j+1].Text.Replace("€", "").Trim());
 
-                    if (currentRowPrice >= nextRowPrice)
+                    if(j < price.Count - 1)
                     {
-                        Assert.GreaterOrEqual(currentRowPrice, nextRowPrice, "Row " + price[j] + "price: " + currentRowPrice + " is greater than or equal to Row " + price[j+1] + "price: " + nextRowPrice);
-                        Console.WriteLine("TEST PASSED - Row " + price[j] + "price: " + currentRowPrice + " is greater than or equal to Row " + price[j + 1] + "price: " + nextRowPrice);
+                        double nextRowPrice = Convert.ToDouble(price[j + 1].Text.Replace("€", "").Trim());
+                        if (currentRowPrice >= nextRowPrice)
+                        {
+                            Assert.GreaterOrEqual(currentRowPrice, nextRowPrice, "price: " + currentRowPrice + " is greater than or equal to price: " + nextRowPrice);
+                            Console.WriteLine("TEST PASSED - " + currentRowPrice + " is greater than or equal to price: " + nextRowPrice);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("This is the last record. Price " + currentRowPrice + " have nothing to compare to.");
                     }
                 }
 
                 //click on the next page number
                 int nextPage = i + 1;
                 driver.FindElement(By.XPath("//ul[@class='pagination']/li/a[text()='" + nextPage + "']")).Click();
+
+                //wait for next page to load
+                var wait = new WebDriverWait(driver, new TimeSpan(0, 0, 10));
+                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlContains("?page=" + nextPage));
             }
-
-
-            //get all the years within the page and compare to 2015
-            //var year = driver.FindElements(By.XPath("//ul[@data-qa-selector='spec-list']/li[1]"));
-            //for (int k = 0; k < year.Count-1; k++)
-            //{
-            //    int rowYear = Convert.ToInt32(year[k].Text.Replace("•", "").Substring(4, 4));
-            //    if (rowYear >= 2015)
-            //    {
-            //        Assert.GreaterOrEqual(rowYear, 2015, "Row " + year[k] + "price: " + rowYear + " is greater than or equal to 2015");
-            //        Console.WriteLine("TEST PASSED - Row " + year[k] + "price: " + rowYear + " is greater than or equal to 2015");
-            //    }
-            //}
         }
 
 
         [TearDown]
         public void TearDown()
         {
-            //driver.Close();
+            driver.Close();
         }
 
 
         void NavigateToUrl(string url)
         {
             driver.Url = url;
-            driver.Manage().Window.FullScreen();
+            //driver.Manage().Window.Maximize(); //doesn't work in Chrome OSX
             driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(10);
         }
 
