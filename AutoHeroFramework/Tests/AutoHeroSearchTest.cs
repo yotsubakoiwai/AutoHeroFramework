@@ -5,7 +5,9 @@ using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace AutoHeroFramework
 {
@@ -35,34 +37,22 @@ namespace AutoHeroFramework
 
             WaitForPageElementsToLoad();
 
-
-            //get the number of records and divide by 24 (number of records displayed per page) then round up to get the number of pages
-            var numOfRecords = driver.FindElement(By.XPath("//div[@data-qa-selector='results-amount']"));
-            var numOfPages = Math.Ceiling(Decimal.Divide(Int32.Parse(numOfRecords.Text.Replace("Treffer", "").Trim()), 24));
-
-            for (int i = 1; i < numOfPages; i++)
+            for (int i = 1; i <= GetNumberOfPages(); i++)
             {
-                //get all the years within the page and compare to 2015
-                var year = driver.FindElements(By.XPath("//ul[@data-qa-selector='spec-list']/li[1]"));
-                for (int k = 0; k < year.Count; k++)
-                {
-                    int rowYear = Convert.ToInt32(year[k].Text.Replace("•", "").Substring(4, 4));
-                    if (rowYear >= 2015)
-                    {
-                        Assert.GreaterOrEqual(rowYear, 2015, rowYear + " is greater than or equal to 2015");
-                        Console.WriteLine("TEST PASSED - " + rowYear + " is greater than or equal to 2015");
-                    }
-                }
+
+                GetAllYearsWithinPageAndCompareTo(2015);
 
                 //get all the prices within a page and compare the current row price to the next
-                IList<IWebElement> price = driver.FindElements(By.XPath("//div[@data-qa-selector='price']"));
-                for (int j = 0; j < price.Count; j++)
-                {
-                    double currentRowPrice = Convert.ToDouble(price[j].Text.Replace("€", "").Trim());
+                IList<IWebElement> numPrice = driver.FindElements(By.XPath("//div[@data-qa-selector='price']"));
+                int currentRowPrice;
+                int nextRowPrice;
 
-                    if(j < price.Count - 1)
+                for (int j = 0; j < numPrice.Count; j++)
+                {
+                    Int32.TryParse(numPrice[j].Text.Replace("€", "").Replace(".", "").Replace(",", "").Trim(), out currentRowPrice);
+                    if (j < numPrice.Count - 1)
                     {
-                        double nextRowPrice = Convert.ToDouble(price[j + 1].Text.Replace("€", "").Trim());
+                        Int32.TryParse(numPrice[j + 1].Text.Replace("€", "").Replace(".", "").Replace(",", "").Trim(), out nextRowPrice);
                         if (currentRowPrice >= nextRowPrice)
                         {
                             Assert.GreaterOrEqual(currentRowPrice, nextRowPrice, "price: " + currentRowPrice + " is greater than or equal to price: " + nextRowPrice);
@@ -71,17 +61,25 @@ namespace AutoHeroFramework
                     }
                     else
                     {
-                        Console.WriteLine("This is the last record. Price " + currentRowPrice + " have nothing to compare to.");
+                        Console.WriteLine("Last row of page " + i + " is " + currentRowPrice);
                     }
                 }
 
-                //click on the next page number
-                int nextPage = i + 1;
-                driver.FindElement(By.XPath("//ul[@class='pagination']/li/a[text()='" + nextPage + "']")).Click();
+                if (i < GetNumberOfPages())
+                {
+                    //click on the next page number
+                    int nextPage = i + 1;
+                    driver.FindElement(By.XPath("//ul[@class='pagination']/li/a[text()='" + nextPage + "']")).Click();
 
-                //wait for next page to load
-                var wait = new WebDriverWait(driver, new TimeSpan(0, 0, 10));
-                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlContains("?page=" + nextPage));
+                    //wait for next page to load
+                    var wait = new WebDriverWait(driver, new TimeSpan(0, 0, 10));
+                    wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlContains("?page=" + nextPage));
+                }
+                else
+                {
+                    Console.WriteLine("This is the last page, " + i);
+                }
+
             }
         }
 
@@ -137,6 +135,24 @@ namespace AutoHeroFramework
             var numOfRecords = driver.FindElement(By.XPath("//div[@data-qa-selector='results-amount']"));
             var numOfPages = Math.Ceiling(Decimal.Divide(Int32.Parse(numOfRecords.Text.Replace("Treffer", "").Trim()), 24));
             return Convert.ToInt32(numOfPages);
+        }
+
+
+        void GetAllYearsWithinPageAndCompareTo(int yearToCompare)
+        {
+            //get all the years within the page and compare to 2015
+            var year = driver.FindElements(By.XPath("//ul[@data-qa-selector='spec-list']/li[1]"));
+                    for (int k = 0; k<year.Count; k++)
+                    {
+
+                        int rowYear;
+                        Int32.TryParse(year[k].Text.Replace("•", "").Substring(4, 4), out rowYear);
+                        if (rowYear >= yearToCompare)
+                        {
+                            Assert.GreaterOrEqual(rowYear, yearToCompare, rowYear + " is greater than or equal to 2015");
+                            Console.WriteLine("TEST PASSED - " + rowYear + " is greater than or equal to 2015");
+                        }
+                    }
         }
 
 
