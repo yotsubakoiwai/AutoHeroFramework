@@ -67,18 +67,19 @@ namespace AutoHeroFramework
                 }
             }
 
-            for (int n = 1; n <= priceComplete.Count(); n++)
+            int priceCompleteCount = priceComplete.Count();
+            for (int n = 0; n < priceCompleteCount; n++)
             {
                 int prevPrice;
                 int nextPrice;
                 Int32.TryParse(priceComplete[n], out prevPrice);
                 Int32.TryParse(priceComplete[n + 1], out nextPrice);
-                if (n < priceComplete.Count())
+                if (n < priceCompleteCount - 1)
                 {
                     if (prevPrice >= nextPrice)
                     {
                         Assert.GreaterOrEqual(prevPrice, nextPrice, "price: " + prevPrice + " is greater than or equal to price: " + nextPrice);
-                        Console.Write("\n" + "TEST PASSED - " + prevPrice + " is greater than or equal to " + nextPrice);
+                        Console.Write("TEST PASSED - " + prevPrice + " is greater than or equal to " + nextPrice);
                     }
                 }
                 else
