@@ -67,13 +67,13 @@ namespace AutoHeroFramework
                 }
             }
 
-            for (int n = 0; n < priceComplete.Count(); n++)
+            for (int n = 1; n <= priceComplete.Count(); n++)
             {
                 int prevPrice;
                 int nextPrice;
                 Int32.TryParse(priceComplete[n], out prevPrice);
                 Int32.TryParse(priceComplete[n + 1], out nextPrice);
-                if (n < priceComplete.Count() - 1)
+                if (n < priceComplete.Count())
                 {
                     if (prevPrice >= nextPrice)
                     {
@@ -81,7 +81,7 @@ namespace AutoHeroFramework
                         Console.Write("\n" + "TEST PASSED - " + prevPrice + " is greater than or equal to " + nextPrice);
                     }
                 }
-                else if(n < priceComplete.Count())
+                else
                 {
                     Console.Write("Nothing to compare anymore. Last row of last page is " + prevPrice);
                 }
