@@ -78,10 +78,10 @@ namespace AutoHeroFramework
                     if (prevPrice >= nextPrice)
                     {
                         Assert.GreaterOrEqual(prevPrice, nextPrice, "price: " + prevPrice + " is greater than or equal to price: " + nextPrice);
-                        Console.Write("\n" + prevPrice + " is greater than or equal to " + nextPrice);
+                        Console.Write("\n" + "TEST PASSED - " + prevPrice + " is greater than or equal to " + nextPrice);
                     }
                 }
-                else
+                else if(n < priceComplete.Count())
                 {
                     Console.Write("Nothing to compare anymore. Last row of last page is " + prevPrice);
                 }
