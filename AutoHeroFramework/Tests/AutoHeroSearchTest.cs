@@ -68,7 +68,7 @@ namespace AutoHeroFramework
             }
 
             int priceCompleteCount = priceComplete.Count();
-            for (int n = 0; n < priceCompleteCount; n++)
+            for (int n = 1; n < priceCompleteCount; n++)
             {
                 int prevPrice;
                 int nextPrice;
