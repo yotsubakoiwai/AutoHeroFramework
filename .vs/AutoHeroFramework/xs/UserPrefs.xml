@@ -1,22 +1,8 @@
 ﻿<Properties StartupConfiguration="{F416FA9E-A7D5-47E8-88C9-0905940275C4}|Unit Tests">
-  <MonoDevelop.Ide.Workbench ActiveDocument="AutoHeroFramework Status">
+  <MonoDevelop.Ide.Workbench ActiveDocument="AutoHeroFramework/Tests/AutoHeroSearchTest.cs">
     <Files>
       <File FileName="AutoHeroFramework/Tests/AutoHeroSearchTest.cs" Line="68" Column="142" />
-      <File FileName="AutoHeroFramework Status" />
     </Files>
-    <Pads>
-      <Pad Id="MonoDevelop.UnitTesting.TestPad">
-        <State name="__root__">
-          <Node name="AutoHeroFramework" expanded="True" selected="True">
-            <Node name="AutoHeroFramework" expanded="True">
-              <Node name="AutoHeroFramework" expanded="True">
-                <Node name="AutoHeroSearchTest" expanded="True" />
-              </Node>
-            </Node>
-          </Node>
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

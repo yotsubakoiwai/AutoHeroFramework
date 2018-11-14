@@ -37,33 +37,19 @@ namespace AutoHeroFramework
 
             WaitForPageElementsToLoad();
 
+            List<string> priceComplete = new List<string>();
             for (int i = 1; i <= GetNumberOfPages(); i++)
             {
 
-                GetAllYearsWithinPageAndCompareTo(2015);
+                GetAllYearsWithinPageAndCompareTo2015();
 
                 //get all the prices within a page and compare the current row price to the next
-                IList<IWebElement> numPrice = driver.FindElements(By.XPath("//div[@data-qa-selector='price']"));
-                int currentRowPrice;
-                int nextRowPrice;
+                IList<IWebElement> priceList = driver.FindElements(By.XPath("//div[@data-qa-selector='price']"));
 
-                for (int j = 0; j < numPrice.Count; j++)
+                foreach (var rowPrice in priceList)
                 {
-                    Int32.TryParse(numPrice[j].Text.Replace("€", "").Replace(".", "").Replace(",", "").Trim(), out currentRowPrice);
-                    if (j < numPrice.Count - 1)
-                    {
-                        Int32.TryParse(numPrice[j + 1].Text.Replace("€", "").Replace(".", "").Replace(",", "").Trim(), out nextRowPrice);
-                        if (currentRowPrice >= nextRowPrice)
-                        {
-                            Assert.GreaterOrEqual(currentRowPrice, nextRowPrice, "price: " + currentRowPrice + " is greater than or equal to price: " + nextRowPrice);
-                            Console.WriteLine("TEST PASSED - " + currentRowPrice + " is greater than or equal to price: " + nextRowPrice);
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Last row of page " + i + " is " + currentRowPrice);
-                    }
-                }
+                    priceComplete.Add(rowPrice.Text.Replace("€", "").Replace(".", "").Replace(",", "").Trim());
+                }  
 
                 if (i < GetNumberOfPages())
                 {
@@ -79,7 +65,26 @@ namespace AutoHeroFramework
                 {
                     Console.WriteLine("This is the last page, " + i);
                 }
+            }
 
+            for (int n = 0; n < priceComplete.Count(); n++)
+            {
+                int prevPrice;
+                int nextPrice;
+                Int32.TryParse(priceComplete[n], out prevPrice);
+                Int32.TryParse(priceComplete[n + 1], out nextPrice);
+                if (n < priceComplete.Count() - 1)
+                {
+                    if (prevPrice >= nextPrice)
+                    {
+                        Assert.GreaterOrEqual(prevPrice, nextPrice, "price: " + prevPrice + " is greater than or equal to price: " + nextPrice);
+                        Console.Write("\n" + prevPrice + " is greater than or equal to " + nextPrice);
+                    }
+                }
+                else
+                {
+                    Console.Write("Nothing to compare anymore. Last row of last page is " + prevPrice);
+                }
             }
         }
 
@@ -138,7 +143,7 @@ namespace AutoHeroFramework
         }
 
 
-        void GetAllYearsWithinPageAndCompareTo(int yearToCompare)
+        void GetAllYearsWithinPageAndCompareTo2015()
         {
             //get all the years within the page and compare to 2015
             var year = driver.FindElements(By.XPath("//ul[@data-qa-selector='spec-list']/li[1]"));
@@ -147,9 +152,9 @@ namespace AutoHeroFramework
 
                         int rowYear;
                         Int32.TryParse(year[k].Text.Replace("•", "").Substring(4, 4), out rowYear);
-                        if (rowYear >= yearToCompare)
+                        if (rowYear >= 2015)
                         {
-                            Assert.GreaterOrEqual(rowYear, yearToCompare, rowYear + " is greater than or equal to 2015");
+                            Assert.GreaterOrEqual(rowYear, 2015, rowYear + " is greater than or equal to 2015");
                             Console.WriteLine("TEST PASSED - " + rowYear + " is greater than or equal to 2015");
                         }
                     }
