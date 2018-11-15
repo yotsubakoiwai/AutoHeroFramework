@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace AutoHeroFramework
 {
@@ -41,7 +40,7 @@ namespace AutoHeroFramework
             for (int i = 1; i <= GetNumberOfPages(); i++)
             {
 
-                GetAllYearsWithinPageAndCompareTo2015();
+                //GetAllYearsWithinPageAndCompareTo2015();
 
                 //get all the prices within a page and compare the current row price to the next
                 IList<IWebElement> priceList = driver.FindElements(By.XPath("//div[@data-qa-selector='price']"));
@@ -67,24 +66,17 @@ namespace AutoHeroFramework
                 }
             }
 
-            int priceCompleteCount = priceComplete.Count();
-            for (int n = 0; n < priceCompleteCount; n++)
+            int priceCompleteCount = priceComplete.Count(); //409
+            for (int n = 0; n < priceCompleteCount-1; n++)
             {
                 int prevPrice;
                 int nextPrice;
                 Int32.TryParse(priceComplete[n], out prevPrice);
                 Int32.TryParse(priceComplete[n + 1], out nextPrice);
-                if (n < priceCompleteCount - 1)
+                if (prevPrice >= nextPrice)
                 {
-                    if (prevPrice >= nextPrice)
-                    {
-                        Assert.GreaterOrEqual(prevPrice, nextPrice, "price: " + prevPrice + " is greater than or equal to price: " + nextPrice);
-                        Console.Write("\n" + "TEST PASSED - " + prevPrice + " is greater than or equal to " + nextPrice);
-                    }
-                }
-                else
-                {
-                    Console.Write("Nothing to compare anymore. Last row of last page is " + prevPrice);
+                    Assert.GreaterOrEqual(prevPrice, nextPrice, "price: " + prevPrice + " is greater than or equal to price: " + nextPrice);
+                    Console.Write("\n" + "TEST PASSED - " + prevPrice + " is greater than or equal to " + nextPrice);
                 }
             }
         }
